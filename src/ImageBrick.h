@@ -1,21 +1,35 @@
 #ifndef MASON_IMAGEBRICK_H
 #define MASON_IMAGEBRICK_H
 
+#include <iostream>
 #include <filesystem>
 #include <gtkmm/image.h>
 #include <gdkmm/pixbuf.h>
 
-class ImageBrick {
+class ImageBrick : public Gtk::Image {
 public:
 	ImageBrick();
-	Gtk::Image *Widget();
+	~ImageBrick();
 	void FromFile(std::filesystem::path file);
-	void ConstrainSize(uint32_t w, uint32_t h);
+	void FromPixbuf(Glib::RefPtr<Gdk::Pixbuf>);
+	unsigned ConstrainHeight(unsigned h);
+	unsigned ConstrainWidth(unsigned w);
 	void UnconstrainSize();
+	unsigned Width();
+	unsigned Height();
 private:
-	Glib::RefPtr<Gdk::Pixbuf> imageData;
-	Gtk::Image widget;
-	uint32_t width, height;
+	bool isVertical();
+	bool isHorizontal();
+	bool isSquare();
+	void renderImage();
+	void calculateDimsFromConstraints();
+	std::filesystem::path srcFile;
+	Glib::RefPtr<Gdk::Pixbuf> srcImageData;
+	Glib::RefPtr<Gdk::Pixbuf> renderImageData;
+	uint32_t maxWidth, maxHeight, srcWidth, srcHeight, width, height;
+	double aspectRatio;
+	static const uint32_t defaultWidth = 300;
+	static const uint32_t defaultHeight = 300;
 };
 
 #endif

@@ -1,16 +1,36 @@
 #include "MainWindow.h"
 
-MainWindow::MainWindow() {
-	set_title("Mason Gallery");
+MainWindow::MainWindow(std::filesystem::path d) {
+	imageDirectory = d;
+
+	set_title("Masonry Gallery");
 	set_border_width(10);
 
 	set_default_size(defaultHeight, defaultWidth);
-	image.ConstrainSize(defaultHeight, defaultWidth);
 
-	add(*image.Widget());
+	lastWidth = defaultWidth;
+	lastHeight = defaultHeight;
+
+	frame.set_label("Masonry Gallery");
+	frame.set_shadow_type(Gtk::SHADOW_ETCHED_OUT);
+
+	add(frame);
+	frame.add(scrollWindow);
+	scrollWindow.add(masonLayout);
+
 	show_all_children();
+
+	masonThread = new std::thread([this, d] {
+		this->masonLayout.LoadDirectory(d);
+	});
 }
 
-void MainWindow::Display(std::filesystem::path p) {
-	image.FromFile(p);
+MainWindow::~MainWindow() {
+}
+
+bool MainWindow::on_configure_changed(GdkEventConfigure *event) {
+	lastWidth = event->width;
+	lastHeight = event->height;
+
+	return false;
 }
