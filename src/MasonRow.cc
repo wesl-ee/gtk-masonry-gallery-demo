@@ -18,6 +18,7 @@ void MasonRow::ExpandToFillWidth() {
 	double ratio = clampWidth / (double)currWidth;
 	for (auto &i : content) {
 		i->ConstrainWidth(round(i->Width() * ratio));
+		i->Draw();
 	}
 }
 
@@ -28,6 +29,7 @@ bool MasonRow::Append(ImageBrick *i) {
 	content.push_back(i);
 	currWidth += w;
 	add(*i);
+	i->Draw();
 	show();
 	return true;
 }

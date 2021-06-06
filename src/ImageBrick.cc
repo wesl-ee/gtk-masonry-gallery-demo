@@ -53,7 +53,6 @@ void ImageBrick::FromPixbuf(Glib::RefPtr<Gdk::Pixbuf> data) {
 	aspectRatio = (double)srcWidth / (double)srcHeight;
 
 	calculateDimsFromConstraints();
-	renderImage();
 }
 
 void ImageBrick::FromFile(std::filesystem::path file) {
@@ -66,10 +65,12 @@ void ImageBrick::FromFile(std::filesystem::path file) {
 	aspectRatio = (double)srcWidth / (double)srcHeight;
 
 	calculateDimsFromConstraints();
-	renderImage();
+	Draw();
 }
 
-void ImageBrick::renderImage() {
+void ImageBrick::Draw() {
+	if (!srcImageData)
+		return;
 	renderImageData = srcImageData->scale_simple(width, height,
 		Gdk::InterpType::INTERP_BILINEAR);
 	set(renderImageData);
@@ -82,10 +83,6 @@ unsigned ImageBrick::ConstrainHeight(unsigned h) {
 
 	calculateDimsFromConstraints();
 
-	if (srcImageData) {
-		renderImage();
-	}
-
 	return width;
 }
 
@@ -94,10 +91,6 @@ unsigned ImageBrick::ConstrainWidth(unsigned w) {
 	maxHeight = 0;
 
 	calculateDimsFromConstraints();
-
-	if (srcImageData) {
-		renderImage();
-	}
 
 	return height;
 }

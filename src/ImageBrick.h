@@ -17,11 +17,11 @@ public:
 	void UnconstrainSize();
 	unsigned Width();
 	unsigned Height();
+	void Draw();
 private:
 	bool isVertical();
 	bool isHorizontal();
 	bool isSquare();
-	void renderImage();
 	void calculateDimsFromConstraints();
 	std::filesystem::path srcFile;
 	Glib::RefPtr<Gdk::Pixbuf> srcImageData;
