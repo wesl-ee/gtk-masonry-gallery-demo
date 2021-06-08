@@ -3,39 +3,37 @@
 
 #include <filesystem>
 #include <vector>
+#include <thread>
 #include <glibmm/dispatcher.h>
 #include <gtkmm/container.h>
 #include <gtkmm/grid.h>
+#include "AtomicQ.h"
 #include "MasonRow.h"
 #include "ImageBrick.h"
-
-typedef struct ImageData {
-public:
-	Glib::RefPtr<Gdk::Pixbuf> Image;
-	bool Added;
-} ImageData;
-
-typedef struct LoadedImages {
-public:
-	std::vector<ImageData> Images;
-	mutable std::mutex Lock;
-} LoadedImages;
 
 class MasonLayout : public Gtk::Grid {
 public:
 	MasonLayout();
-	void Add(ImageData &data);
+	void Add(ImageBrickData *data);
 	void LoadDirectory(std::filesystem::path d);
+	void LazyLoadDirectory(std::filesystem::path d);
 	void Load(std::filesystem::path f);
 	void RemoveAll();
+	void ClampWidth(unsigned w);
+	unsigned ClampWidth();
 private:
-	void onImageLoaded();
+	void onImagePendingDraw();
+	void resizeRows();
 
+	unsigned clampHeight, clampWidth, lastWidth, lastHeight;
 	std::map<std::filesystem::path, bool> galleryFiles;
 	std::vector<MasonRow> rows;
-	MasonRow *nextRow;
-	LoadedImages loaded;
+	std::vector<ImageBrick*> displayed;
 	Glib::Dispatcher dispatcher;
+	AtomicQ<std::size_t> updated;
+
+	std::thread *loadThread;
+	std::thread *resizeThread;
 
 	void newRow();
 };

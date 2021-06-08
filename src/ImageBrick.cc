@@ -1,101 +1,27 @@
 #include "ImageBrick.h"
 
-ImageBrick::ImageBrick() {
-	maxWidth = 0;
-	maxHeight = 0;
+ImageBrick::ImageBrick(ImageBrickData *d) :
+data{d}
+{
 }
 
 ImageBrick::~ImageBrick() {
 }
 
-void ImageBrick::calculateDimsFromConstraints() {
-	width = height = 0;
-
-	if (maxHeight and maxWidth) {
-		// TODO
-	} else if (maxHeight) {
-		height = maxHeight;
-		width = srcWidth * ((double)height / (double)srcHeight);
-	} else if (maxWidth) {
-		width = maxWidth;
-		height = srcHeight * ((double)width / (double)srcWidth);
-	} else {
-		height = srcHeight;
-		width = srcWidth;
-	}
+unsigned ImageBrick::ConstrainWidth(unsigned w) {
+	return data->ConstrainWidth(w);
 }
 
-bool ImageBrick::isVertical() {
-	return aspectRatio < 1;
+unsigned ImageBrick::ScaledWidth(unsigned h) {
+	return data->ScaledWidth(h);
 }
 
-bool ImageBrick::isHorizontal() {
-	return aspectRatio > 1;
-}
-
-bool ImageBrick::isSquare() {
-	return aspectRatio == 1;
-}
-
-unsigned ImageBrick::Height() {
-	return height;
-}
-
-unsigned ImageBrick::Width() {
-	return width;
-}
-
-void ImageBrick::FromPixbuf(Glib::RefPtr<Gdk::Pixbuf> data) {
-	srcImageData = data;
-
-	srcWidth = srcImageData->get_width();
-	srcHeight = srcImageData->get_height();
-	aspectRatio = (double)srcWidth / (double)srcHeight;
-
-	calculateDimsFromConstraints();
-}
-
-void ImageBrick::FromFile(std::filesystem::path file) {
-	srcFile = file;
-	std::cout << file << std::endl;
-	srcImageData = Gdk::Pixbuf::create_from_file(file);
-
-	srcWidth = srcImageData->get_width();
-	srcHeight = srcImageData->get_height();
-	aspectRatio = (double)srcWidth / (double)srcHeight;
-
-	calculateDimsFromConstraints();
-	Draw();
+unsigned ImageBrick::ScaledWidth() {
+	return data->ScaledWidth();
 }
 
 void ImageBrick::Draw() {
-	if (!srcImageData)
-		return;
-	renderImageData = srcImageData->scale_simple(width, height,
-		Gdk::InterpType::INTERP_BILINEAR);
-	set(renderImageData);
+	set(data->Rendered());
 	show();
 }
 
-unsigned ImageBrick::ConstrainHeight(unsigned h) {
-	maxHeight = h;
-	maxWidth = 0;
-
-	calculateDimsFromConstraints();
-
-	return width;
-}
-
-unsigned ImageBrick::ConstrainWidth(unsigned w) {
-	maxWidth = w;
-	maxHeight = 0;
-
-	calculateDimsFromConstraints();
-
-	return height;
-}
-
-void ImageBrick::UnconstrainSize() {
-	maxWidth = 0;
-	maxHeight = 0;
-}

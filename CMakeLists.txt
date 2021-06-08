@@ -17,6 +17,7 @@ target_sources(gtk-mason-gallery-demo PRIVATE
 	src/main.cc
 	src/MainWindow.cc
 	src/ImageBrick.cc
+	src/ImageBrickData.cc
 	src/MasonRow.cc
 	src/MasonLayout.cc
 )

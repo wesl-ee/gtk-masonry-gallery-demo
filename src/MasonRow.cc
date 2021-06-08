@@ -1,43 +1,49 @@
 #include "MasonRow.h"
 
-MasonRow::MasonRow() {
-	clampWidth = 1500;
-	clampHeight = 250;
-	currWidth = 0;
+MasonRow::MasonRow() :
+dirty{false},
+currWidth{0},
+clampHeight{250},
+clampWidth{1500}
+{
 }
 
 void MasonRow::SetMaxWidth(unsigned w) {
-	unsigned oldW = clampWidth;
 	clampWidth = w;
-	if (oldW != w) {
-		// TODO Resize
-	}
 }
 
 void MasonRow::ExpandToFillWidth() {
+	dirty = true;
 	double ratio = clampWidth / (double)currWidth;
-	for (auto &i : content) {
-		i->ConstrainWidth(round(i->Width() * ratio));
-		i->Draw();
-	}
+	for (auto &i : content)
+		i->ConstrainWidth(std::floor(i->ScaledWidth() * ratio));
 }
 
-bool MasonRow::Append(ImageBrick *i) {
-	auto w = i->ConstrainHeight(clampHeight);
+void MasonRow::Draw() {
+	if (dirty)
+		for (auto &i : content)
+			i->Draw();
+	toAdd.Clear([&](ImageBrickData *i) {
+		auto brick = Gtk::manage(new ImageBrick(i));
+		content.push_back(brick);
+		brick->Draw();
+		add(*brick);
+		show();
+	});
+}
+
+bool MasonRow::Append(ImageBrickData *i) {
+	auto w = i->ScaledWidth(clampHeight);
 	if (currWidth + w > clampWidth)
 		return false;
-	content.push_back(i);
+
+	i->ConstrainWidth(w);
+	toAdd.Push(i);
 	currWidth += w;
-	add(*i);
-	i->Draw();
-	show();
+
 	return true;
 }
 
 void MasonRow::ClampHeight(unsigned h) {
 	clampHeight = h;
-}
-
-bool MasonRow::WouldOverflow(ImageBrick *i) {
-	return currWidth + i->get_width() > clampWidth;
 }

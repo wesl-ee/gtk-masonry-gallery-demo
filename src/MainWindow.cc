@@ -20,9 +20,21 @@ MainWindow::MainWindow(std::filesystem::path d) {
 
 	show_all_children();
 
-	masonThread = new std::thread([this, d] {
-		this->masonLayout.LoadDirectory(d);
+	signal_realize().connect([&, d] {
+		masonLayout.ClampWidth(get_width() - 20);
+		masonLayout.LoadDirectory(d);
 	});
+
+	signal_configure_event().connect([&, d](GdkEventConfigure *event) {
+		if ((unsigned)event->width == lastWidth &&
+		(unsigned)event->height == lastHeight)
+			return false;
+
+		masonLayout.ClampWidth(event->width - 20);
+		this->lastWidth = event->width;
+		this->lastHeight = event->width;
+		return false;
+	}, false);
 }
 
 MainWindow::~MainWindow() {

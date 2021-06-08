@@ -4,8 +4,6 @@
 #include <iostream>
 #include <filesystem>
 #include <cmath>
-#include <thread>
-#include <mutex>
 #include <gtkmm/window.h>
 #include <gtkmm/frame.h>
 #include <gtkmm/grid.h>
@@ -26,8 +24,6 @@ private:
 	Gtk::Frame frame;
 	Gtk::Grid grid;
 	Gtk::ScrolledWindow scrollWindow;
-
-	std::thread *masonThread;
 
 	const uint32_t defaultHeight = 500;
 	const uint32_t defaultWidth = 500;
